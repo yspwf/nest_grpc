@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+package order;
+
+// 订单状态枚举
+enum OrderStatus {
+  PENDING = 0;
+  PAID = 1;
+  SHIPPED = 2;
+  DELIVERED = 3;
+  CANCELLED = 4;
+}
+
+// 订单项消息
+message OrderItem {
+  string product_id = 1;
+  string product_name = 2;
+  int32 quantity = 3;
+  double price = 4;
+}
+
+// 订单消息
+message Order {
+  string id = 1;
+  string user_id = 2;
+  double total_amount = 3;
+  OrderStatus status = 4;
+  repeated OrderItem items = 5;
+  string shipping_address = 6;
+  int64 created_at = 7;
+  int64 updated_at = 8;
+}
+
+// 创建订单请求
+message CreateOrderRequest {
+  string user_id = 1;
+  double total_amount = 2;
+  repeated OrderItem items = 3;
+  string shipping_address = 4;
+}
+
+// 获取订单请求
+message GetOrderRequest {
+  string id = 1;
+}
+
+// 获取用户订单列表请求
+message GetUserOrdersRequest {
+  string user_id = 1;
+}
+
+// 更新订单状态请求
+message UpdateOrderStatusRequest {
+  string id = 1;
+  OrderStatus status = 2;
+}
+
+// 删除订单请求
+message DeleteOrderRequest {
+  string id = 1;
+}
+
+// 空响应
+message EmptyResponse {}
+
+// 订单列表响应
+message OrderListResponse {
+  repeated Order orders = 1;
+}
+
+// 订单服务定义
+service OrderService {
+  rpc CreateOrder(CreateOrderRequest) returns (Order);
+  rpc GetOrder(GetOrderRequest) returns (Order);
+  rpc GetUserOrders(GetUserOrdersRequest) returns (OrderListResponse);
+  rpc UpdateOrderStatus(UpdateOrderStatusRequest) returns (Order);
+  rpc DeleteOrder(DeleteOrderRequest) returns (EmptyResponse);
+}
