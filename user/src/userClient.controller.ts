@@ -71,7 +71,7 @@ import type {
   UserServiceClient, // ✅ 现在可以正常导入了
 } from './user.interface';
 
-@Controller('users')
+@Controller('v1/users')
 export class UserController {
 //   private userService: UserServiceClient;
 

@@ -8,11 +8,12 @@ import type {
   OrderServiceClient
 } from './order.interface';
 
-@Controller('orders')
+@Controller('v1/orders')
 export class OrderClientController {
   private orderService!: OrderServiceClient;
 
-  constructor(@Inject('ORDER_PACKAGE') private readonly client: ClientGrpc) {}
+  // constructor(@Inject('ORDER_PACKAGE') private readonly client: ClientGrpc) {}
+  constructor(@Inject('USER_PACKAGE') private readonly client: ClientGrpc){}
 
   onModuleInit() {
     this.orderService = this.client.getService<OrderServiceClient>('OrderService');
