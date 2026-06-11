@@ -15,14 +15,43 @@
 
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { join } from 'path';
+import { join } from 'node:path';
 import { UserController } from './userClient.controller';
 import { OrderClientController } from './orderClient.controller';
 import { UserModule } from './user/user.module';
 import { OrderModule } from './order/order.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { UsersRepositoryModule } from './userRepository/usersRepository.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { envSchema } from './config/schema';
+import { z } from 'zod';
 
 @Module({
   imports: [
+     ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: `.env.${process.env.NODE_ENV}`,
+      validate: (config) => {
+        // 使用 zod 校验环境变量
+        const parsed = envSchema.safeParse(config);
+        if (!parsed.success) {
+          console.error('❌ 配置校验失败', parsed.error.format());
+          throw new Error('Invalid environment variables');
+        }
+        return parsed.data;
+      },
+    }),
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: 'sh-postgres-1778mgdq.sql.tencentcdb.com',
+      port: 26741,
+      username: 'postgresadmin',
+      password: '...9037160Wfysp',
+      database: 'postgres',
+      entities: [join(__dirname, '**', '*.entity.{ts,js}')],
+      // autoLoadEntities: true,
+      // synchronize: true, // only for dev!
+    }),
     // 注册用户服务 gRPC 客户端
     ClientsModule.register([
       {
@@ -63,7 +92,8 @@ import { OrderModule } from './order/order.module';
       // },
     ]),
     UserModule, 
-    OrderModule
+    OrderModule,
+    UsersRepositoryModule
   ],
   controllers: [UserController, OrderClientController],
 })
