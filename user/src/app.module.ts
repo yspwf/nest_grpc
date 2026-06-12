@@ -23,35 +23,53 @@ import { OrderModule } from './order/order.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersRepositoryModule } from './userRepository/usersRepository.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { envSchema } from './config/schema';
-import { z } from 'zod';
+// import { envSchema } from './config/schema';
+// import { z } from 'zod';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { validateEnv } from './config/configuration';
+
 
 @Module({
   imports: [
      ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: `.env.${process.env.NODE_ENV}`,
-      validate: (config) => {
-        // 使用 zod 校验环境变量
-        const parsed = envSchema.safeParse(config);
-        if (!parsed.success) {
-          console.error('❌ 配置校验失败', parsed.error.format());
-          throw new Error('Invalid environment variables');
-        }
-        return parsed.data;
-      },
+      envFilePath: process.cwd() + `/../.env.${process.env.NODE_ENV}`,
+      validate: validateEnv
+      // validate: (config) => {
+      //   // console.log("config", config)
+      //   // 使用 zod 校验环境变量
+      //   const parsed = envSchema.safeParse(config);
+      //   if (!parsed.success) {
+      //     console.error('❌ 配置校验失败', parsed.error.format());
+      //     throw new Error('Invalid environment variables');
+      //   }
+      //   return parsed.data;
+      // },
     }),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'sh-postgres-1778mgdq.sql.tencentcdb.com',
-      port: 26741,
-      username: 'postgresadmin',
-      password: '...9037160Wfysp',
-      database: 'postgres',
-      entities: [join(__dirname, '**', '*.entity.{ts,js}')],
-      // autoLoadEntities: true,
-      // synchronize: true, // only for dev!
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        type: 'postgres',
+        host: config.get('DB_HOST') ?? 'sh-postgres-1778mgdq.sql.tencentcdb.com',
+        port: config.get('DB_PORT') ?? 26741,
+        username: config.get('DB_USER') ?? 'postgresadmin',
+        password: config.get('DB_PASSWORD') ?? '...9037160Wfysp',
+        database: config.get('DB_NAME') ?? 'postgres',
+        entities: [join(__dirname, '**', '*.entity.{ts,js}')],
+      })
     }),
+    // TypeOrmModule.forRoot({
+    //   type: 'postgres',
+    //   host: 'sh-postgres-1778mgdq.sql.tencentcdb.com',
+    //   port: 26741,
+    //   username: 'postgresadmin',
+    //   password: '...9037160Wfysp',
+    //   database: 'postgres',
+    //   entities: [join(__dirname, '**', '*.entity.{ts,js}')],
+    //   // autoLoadEntities: true,
+    //   // synchronize: true, // only for dev!
+    // }),
     // 注册用户服务 gRPC 客户端
     ClientsModule.register([
       {
@@ -95,6 +113,7 @@ import { z } from 'zod';
     OrderModule,
     UsersRepositoryModule
   ],
-  controllers: [UserController, OrderClientController],
+  controllers: [UserController, OrderClientController, AppController],
+  providers: [AppService]
 })
 export class AppModule {}

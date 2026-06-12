@@ -24,33 +24,40 @@ export class UsersService {
 //     return this.userRepository.save(user);
 //   }
     async create(dto: CreateUserDto): Promise<UserResponseDto> {
-    const user = this.userRepository.create(dto);
-    const saved = await this.userRepository.save(user);
+        const user = this.userRepository.create(dto);
+        // const saved = await this.userRepository.save(user);
+        // const { password, ...result } = saved;
 
-    const { password, ...result } = saved;
-    return result;
+        const { password, ...result } = await this.userRepository.save(user);
+        return result;
     }
 
-  async findAll(): Promise<User[]> {
-    return this.userRepository.find();
-  }
-
-  async findOne(id: number): Promise<User> {
-    const user = await this.userRepository.findOne({ where: { id } });
-    if (!user) {
-      throw new NotFoundException(`User #${id} not found`);
+    async findAll(): Promise<User[]> {
+        return this.userRepository.find();
     }
-    return user;
-  }
 
-  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
-    const user = await this.findOne(id);
-    Object.assign(user, updateUserDto);
-    return this.userRepository.save(user);
-  }
+    async findOne(id: number): Promise<User> {
+        const user = await this.userRepository.findOne({ where: { id } });
+        if (!user) {
+            throw new NotFoundException(`User #${id} not found`);
+        }
+        return user;
+    }
 
-  async remove(id: number): Promise<void> {
-    const user = await this.findOne(id);
-    await this.userRepository.remove(user);
-  }
+    async update(id: number, updateUserDto: UpdateUserDto): Promise<UserResponseDto> {
+        // const user = await this.findOne(id);
+        // Object.assign(user, updateUserDto);
+        // return this.userRepository.save(user);
+        const user = await this.findOne(id);
+        if (!user) throw new NotFoundException();
+
+        Object.assign(user, updateUserDto);
+        const { password, ...result } = await this.userRepository.save(user);
+        return result;
+    }
+
+    async remove(id: number): Promise<void> {
+        const user = await this.findOne(id);
+        await this.userRepository.remove(user);
+    }
 }
