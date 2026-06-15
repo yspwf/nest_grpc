@@ -7,6 +7,7 @@ declare module 'fastify' {
     user?: { id: number; roles: string[] };
     tenantId?: string;
     upstream?: string;
+    traceId: string;
   }
   interface FastifyInstance {
     httpErrors: FastifyHttpErrors;

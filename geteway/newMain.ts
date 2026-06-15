@@ -44,12 +44,12 @@ import helmet from '@fastify/helmet';
 import cors from '@fastify/cors';
 import sensible from '@fastify/sensible';
 
-import { authPlugin } from './plugins/auth.js';
-import { tenantPlugin } from './plugins/tenant.js';
-import { proxyPlugin } from './plugins/proxy.js';
-import { bffPlugin } from './plugins/bff.js';
+import { authPlugin } from './plugins/auth.ts';
+import { tenantPlugin } from './plugins/tenant.ts';
+import { proxyPlugin } from './plugins/proxy.ts';
+import { bffPlugin } from './plugins/bff.ts';
 // import { metricsPlugin } from './plugins/metrics';
-import { rateLimitPlugin } from './plugins/rateLimit.js';
+import { rateLimitPlugin } from './plugins/rateLimit.ts';
 
 const app = Fastify({ logger: true });
 
@@ -57,7 +57,17 @@ const app = Fastify({ logger: true });
 await app.register(helmet);
 await app.register(cors);
 await app.register(sensible);
-await app.register(replyFrom);
+// await app.register(replyFrom);
+app.register(replyFrom, {
+//   核心：Undici 连接池配置
+  undici: {
+    connections: 128,        // 单上游最大并发连接数，默认 64
+    pipelining: 10,         // 单连接流水线请求数，HTTP/1.1 下大幅提升吞吐量
+    keepAliveTimeout: 30000,// 长连接保活时间
+    connectTimeout: 5000,   // 连接超时
+  },
+  cacheURLs: 200,           // 提升 URL 缓存数量，减少解析开销
+})
 
 // 插件化管线
 await app.register(rateLimitPlugin);

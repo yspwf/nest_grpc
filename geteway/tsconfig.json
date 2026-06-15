@@ -7,8 +7,10 @@
 
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    // "module": "nodenext",
+    "module": "ESNext",
+    // "moduleResolution": "nodenext",
+    "moduleResolution": "bundler", // 替换 node16 / nodenext
     "target": "esnext",
     "types": ["node", "fastify"],
     // For nodejs:
@@ -41,6 +43,8 @@
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
+    "allowImportingTsExtensions": true,
+    "rewriteRelativeImportExtensions": true,
     "skipLibCheck": true,
   }
 }

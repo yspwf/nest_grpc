@@ -1,5 +1,5 @@
 import type { FastifyPluginAsync } from 'fastify';
-import { grpcFallback } from '../grpc/grpcClient.js';
+// import { grpcFallback } from '../grpc/grpcClient.ts';
 import type { IncomingHttpHeaders } from 'http';
 
 // export const proxyPlugin: FastifyPluginAsync = async (app) => {
@@ -27,6 +27,11 @@ import type { IncomingHttpHeaders } from 'http';
 
 
 export const proxyPlugin: FastifyPluginAsync = async (app) => {
+    // 前置钩子：生成/透传 traceId（若网关层已生成可省略）
+  app.addHook('onRequest', async (req) => {
+    req.traceId = (req.headers['x-trace-id'] as string) || crypto.randomUUID();
+  });
+
   app.all('/products/*', async (req, reply) => {
     if (!req.upstream) return reply.code(502).send({ error: 'no upstream' });
 
@@ -44,8 +49,8 @@ export const proxyPlugin: FastifyPluginAsync = async (app) => {
     } catch {
       // REST fail -> gRPC fallback
       try {
-        const data = await grpcFallback(req);
-        return reply.send(data);
+        // const data = await grpcFallback(req);
+        // return reply.send(data);
       } catch {
         return reply.code(502).send({ error: 'upstream failed' });
       }
