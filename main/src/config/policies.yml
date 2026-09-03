@@ -1,0 +1,11 @@
+policies:
+  business_hours:
+    description: "敏感操作仅限工作时间"
+    type: abac
+    rules:
+      - resource: ["posts"]
+        action: ["delete"]
+        condition:
+          type: time_range
+          start: "09:00"
+          end: "18:00"

@@ -1,0 +1,35 @@
+roles:
+  admin:
+    description: "管理员"
+    extends: []
+    permissions:
+      - resource: "*"
+        action: "*"
+        effect: allow
+
+  user:
+    description: "普通用户"
+    extends: ["guest"]
+    permissions:
+      - resource: "posts"
+        action: ["create", "read", "update", "delete"]
+        effect: allow
+        conditions:
+          - type: ownership
+            params:
+              field: "user_id"
+      - resource: "profile"
+        action: ["read", "update"]
+        effect: allow
+        conditions:
+          - type: ownership
+            params:
+              field: "user_id"
+
+  guest:
+    description: "未登录访客"
+    extends: []
+    permissions:
+      - resource: "posts"
+        action: ["read", "list"]
+        effect: allow
