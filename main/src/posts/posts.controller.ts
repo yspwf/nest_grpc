@@ -19,7 +19,8 @@ export class PostsController {
 
   @Post()
   @CheckPermissions('posts', 'create')
-  create(@Body() body: any) {
+  async create(@Body() body: any) {
+    await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate a delay
     return { message: 'Create post', data: body };
   }
 

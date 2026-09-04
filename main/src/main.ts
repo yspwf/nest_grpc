@@ -4,6 +4,8 @@ import { AppModule } from './app.module';
 import { WsAdapter } from '@nestjs/platform-ws';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 
+import { TimeoutInterceptor } from './interceptors/timeout.interceptor';
+
 type MockUser = {
   id: string;
   role: string;
@@ -33,6 +35,7 @@ async function bootstrap() {
   );
 
   app.useWebSocketAdapter(new WsAdapter(app));
+  app.useGlobalInterceptors(new TimeoutInterceptor());
 
   // 模拟用户（实际应从JWT或session获取）
   const fastify = app.getHttpAdapter().getInstance();
@@ -44,7 +47,7 @@ async function bootstrap() {
     };
   });
 
-  
+
   // app.use((req: Request, res: Response, next: () => void) => {
   //   // 演示：为测试注入不同角色
   //   // 可修改这里切换角色：'admin' | 'user' | 'guest'
