@@ -1,0 +1,9 @@
+import { CallHandler, ExecutionContext, NestInterceptor } from '@nestjs/common';
+export declare class TransformInterceptor implements NestInterceptor {
+    intercept(context: ExecutionContext, next: CallHandler): import("rxjs").Observable<{
+        statusCode: any;
+        message: string;
+        data: any;
+        timestamp: string;
+    }>;
+}

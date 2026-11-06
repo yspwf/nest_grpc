@@ -44,34 +44,35 @@
 //     priority?: 'low' | 'medium' | 'high' = 'medium';
 // }
 
+import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 
 const priorityEnum = z.enum(['low', 'medium', 'high']);
 const statusEnum = z.enum(['pending', 'in_progress', 'review', 'done', 'cancelled']);
 
-
-
-
 export const CreateTaskSchema = z.object({
-  title: z.string({
-  message: '标题必须是字符串',      // 类型错误时
-  }).min(2, '标题至少 2 个字符').max(100, '标题至少 100 个字符'),
-  description: z.string().max(200),
+  title: z
+  .string({ message: '标题必须是字符串' })
+  .min(2, '标题至少 2 个字符')
+  .max(100, '标题最多 100 个字符'),
+  description: z.string({ message: '描述必须是字符串' }).max(200, '描述最多 200 个字符'),
   priority: priorityEnum.default('medium')
 });
 
-export type CreateTaskDto = z.infer<typeof CreateTaskSchema>;
+// export type CreateTaskDto = z.infer<typeof CreateTaskSchema>;
+export class CreateTaskDto extends createZodDto(CreateTaskSchema) {}
 
 
 
 export const UpdateTaskSchema = z.object({
-  title: z.string().min(2).max(100).optional(),
-  description: z.string().max(200).optional(),
+  title: z.string({ message: '标题必须是字符串' }).min(2, '标题至少 2 个字符').max(100, '标题最多 100 个字符').optional(),
+  description: z.string({ message: '描述必须是字符串' }).max(200, '描述最多 200 个字符').optional(),
   status: statusEnum.optional(),
   priority: priorityEnum.optional()
 });
 
-export type UpdateTaskDto = z.infer<typeof UpdateTaskSchema>;
+// export type UpdateTaskDto = z.infer<typeof UpdateTaskSchema>;
+export class UpdateTaskDto extends createZodDto(UpdateTaskSchema) {}
 
 
 

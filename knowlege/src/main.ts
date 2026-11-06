@@ -3,7 +3,9 @@ import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common'
 import { Request, Response, NextFunction } from 'express';
 // import { ResponseFormatMiddleware } from './response-format.middleware';
-import { TransformInterceptor } from './transform.interceptor';
+// import { TransformInterceptor } from './transform.interceptor';
+
+import compression from 'compression';
 
 
 // export const responseFormatFn = (req: Request, res: Response, next: NextFunction) => {
@@ -45,9 +47,11 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   // app.use(responseFormatFn);
 
-  app.useGlobalInterceptors(new TransformInterceptor());
+  app.use(compression()); // 启用 gzip 压缩
 
-  app.useGlobalFilters(new (require('./custom-exception.filter').CustomExceptionFilter)());
+  // app.useGlobalInterceptors(new TransformInterceptor());
+
+  // app.useGlobalFilters(new (require('./custom-exception.filter').CustomExceptionFilter)());
 
   // app.useLogger(logger);
   logger.log(`Server is running on port ${process.env.PORT ?? 3000}`);
